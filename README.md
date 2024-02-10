@@ -1,3 +1,3 @@
-# readme
+# bill-split
 
-dont read me
+an app that helps split the bill when going out with friends

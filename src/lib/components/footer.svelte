@@ -5,7 +5,7 @@
   import * as Tooltip from "$lib/components/ui/tooltip";
 
   export let themeToggle = true;
-  const project = "anime-compare";
+  const project = "bill-split";
 </script>
 
 <footer class="grid grid-cols-3 w-full mt-4 text-muted-foreground text-xs">
@@ -33,7 +33,7 @@
     class="flex flex-col items-center justify-center"
     class:col-start-2={themeToggle == false}
   >
-    <span>copyright 2023</span>
+    <span>copyright 2024</span>
     <span class="text-center"
       >open source under <a
         class="underline"
