@@ -8,7 +8,9 @@
   import { DataFrame } from "dataframe-js";
   import { Switch } from "$lib/components/ui/switch";
   import { Separator } from "$lib/components/ui/separator";
-
+  // import LZString from "lz-string";
+  // import { goto } from "$app/navigation";
+  // import { page } from "$app/stores";
 
   interface Item {
     name: string;
@@ -18,19 +20,26 @@
 
   let items: Item[] = [];
 
-  // let people = [];
   let people: string[] = [];
 
+  // let htmlTable;
   let currentPerson = "";
   let currentItem = "";
   let currentPrice = 0;
   let tipInput: string = "";
   let taxInput: string = "";
   let tipAsProportion = true;
-  let taxAsPercent = false;
-  let tipAsPercent = false;
   let tip = 0;
   let tax = 0;
+
+  // $: console.log(LZString.compressToBase64(JSON.stringify({"items": items, "people": people}))  );
+  // $: {
+  //   if (typeof window !== 'undefined') {
+  //     const params = new URLSearchParams(window.location.search);
+  //     params.set("data", LZString.compressToEncodedURIComponent(JSON.stringify({"items": items, "people": people})));
+  //     goto(`?${params.toString()}`, { replaceState: true });
+  //   }
+  // }
 
   function createTable(
     items: Item[],
@@ -73,7 +82,7 @@
       ...people.map((name) => getPartialTotal(name).toFixed(2)),
       `$${getTotal().toFixed(2)}`,
     ]);
-    console.log(df.toArray());
+    // console.log(df.toArray());
     return df.toArray();
   }
 
@@ -82,10 +91,12 @@
   }
 
   function getPartialTotal(person: string) {
+    let partialTip = tipAsProportion
+      ? getPartialAmount(person, tip)
+      : tip / people.length;
+
     return (
-      getPartialSubtotal(person) +
-      getPartialAmount(person, tip) +
-      getPartialAmount(person, tax)
+      getPartialSubtotal(person) + partialTip + getPartialAmount(person, tax)
     );
   }
 
@@ -94,7 +105,7 @@
     let calculated = people.reduce((acc, person) => {
       return acc + getPartialTotal(person);
     }, 0);
-    console.log(calculated, getTotal());
+    // console.log(calculated, getTotal());
     return calculated === getTotal();
   }
 
@@ -167,7 +178,7 @@
         <Table.Root>
           <Table.Header>
             <Table.Row>
-              <Table.Head class="w-[100px]">Food</Table.Head>
+              <Table.Head class="w-[100px]">Item</Table.Head>
               {#each people as person, j (j)}
                 <Table.Head>{person}</Table.Head>
               {/each}
@@ -198,11 +209,13 @@
                       >
                       <!-- higlight the last row -->
                     {:else if i == table.length - 1 && !validateTotals()}
-                      <Table.Cell class="font-bold text-red-500"
+                      <Table.Cell class="text-center font-bold text-red-500"
                         >{item}
                       </Table.Cell>
                     {:else}
-                      <Table.Cell class="font-bold">{item}</Table.Cell>
+                      <Table.Cell class="text-center font-bold"
+                        >{item}</Table.Cell
+                      >
                     {/if}
                   {/each}
                 </Table.Row>
@@ -216,7 +229,10 @@
     <Card.Footer class="flex flex-col w-full">
       <div class="flex flex-col w-full border rounded-md p-5 gap-5">
         <h3 class="w-full font-lg font-bold">Input some data to begin</h3>
-        <form class=" w-full flex gap-2 flex-col justify-center" on:submit|preventDefault={null}>
+        <form
+          class=" w-full flex gap-2 flex-col justify-center"
+          on:submit|preventDefault={null}
+        >
           <Input class="w-full" bind:value={currentPerson} />
           <Button class="w-full" type="submit" on:click={addPerson}
             >add person</Button
@@ -228,7 +244,8 @@
             <Input class="w-full" bind:value={currentItem} />
             <Input class="w-28" bind:value={currentPrice} type="number" />
           </div>
-          <Button class="w-full" type="submit" on:click={addItem}>add item</Button
+          <Button class="w-full" type="submit" on:click={addItem}
+            >add item</Button
           >
         </form>
 
